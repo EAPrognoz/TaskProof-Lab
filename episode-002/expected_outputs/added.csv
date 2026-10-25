@@ -1,0 +1,2 @@
+record_id,current_source_row,invoice_date,customer_code,sku,quantity,unit_price,status
+R-2411,11,2026-10-06,C-606,DESK-LAMP,2,19.00,posted

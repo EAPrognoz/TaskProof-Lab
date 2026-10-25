@@ -1,0 +1,8 @@
+plan_row,source_name,new_name,status,reason,source_sha256,copy_sha256
+2,scan_001.txt,2026-10-25_NORTH_INV-1042.txt,BLOCKED_PLAN_COLLISION,"another plan row targets the same name, ignoring case",567186ba7b8df36835958fd1253c8803929d5d87b1aa52d806fdeb615a7e5881,
+3,scan_002.txt,2026-10-25_SOUTH_INV-1043.txt,COPIED,copy verified; original file remains in the source folder,9a054b521b0159cb5a3dfc5e11a495fbd9d64fa079f53209261372ad5c3e3a13,9a054b521b0159cb5a3dfc5e11a495fbd9d64fa079f53209261372ad5c3e3a13
+4,scan_003.txt,2026-10-25_NORTH_INV-1042.txt,BLOCKED_PLAN_COLLISION,"another plan row targets the same name, ignoring case",263ceb92cc07195ed8c9609a945836e1b4c1d6a2ca5264d3782dbcc9d00b236c,
+5,scan_004.txt,../unsafe.txt,BLOCKED_UNSAFE_NAME,"source and target must each be a simple file name, not a path",,
+6,missing_scan_005.txt,2026-10-25_WEST_INV-1045.txt,BLOCKED_SOURCE_MISSING,source is missing or is not a regular file,,
+7,scan_005.txt,2026-10-25_EAST_INV-1046.txt,COPIED,copy verified; original file remains in the source folder,323815c177089e2cfb1580e84a0f497cdf5eaabbbf148b93fae6a1e581782257,323815c177089e2cfb1580e84a0f497cdf5eaabbbf148b93fae6a1e581782257
+8,scan_006.txt,2026-10-25_WEST_INV-1047.txt,COPIED,copy verified; original file remains in the source folder,6a2263c08265e39b34c5f8ff04bba8f3724c8c872fa70ef20a752529b0f981c3,6a2263c08265e39b34c5f8ff04bba8f3724c8c872fa70ef20a752529b0f981c3

@@ -1,0 +1,2 @@
+source_row,order_id,reason
+12,SO-1049,cancelled orders are excluded from booked totals

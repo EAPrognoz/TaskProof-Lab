@@ -1,0 +1,19 @@
+{
+  "synthetic_demo": true,
+  "comparison_policy": "Record IDs are trimmed and uppercased. Other fields are trimmed and compared as text.",
+  "previous_source_rows": 10,
+  "current_source_rows": 11,
+  "unchanged_matches": 5,
+  "changed_matches": 2,
+  "removed_from_current": 2,
+  "added_in_current": 1,
+  "review_previous_rows": 1,
+  "review_current_rows": 3,
+  "ambiguous_keys": [
+    "R-2406"
+  ],
+  "previous_accounted_rows": 10,
+  "current_accounted_rows": 11,
+  "previous_row_check_passed": true,
+  "current_row_check_passed": true
+}

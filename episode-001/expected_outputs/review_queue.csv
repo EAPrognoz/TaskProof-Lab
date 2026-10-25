@@ -1,0 +1,7 @@
+source_row,order_id,reason,raw_row
+3,SO-1042,conflicting rows share this order ID; check the source export,"{""order_date"": ""2026/09/01"", ""order_id"": ""so-1042"", ""product"": ""Keyboard"", ""qty"": ""3"", ""region"": ""west"", ""status"": ""completed"", ""unit_price"": ""45.00""}"
+10,SO-1042,conflicting rows share this order ID; check the source export,"{""order_date"": ""2026-09-01"", ""order_id"": ""SO-1042"", ""product"": ""Keyboard"", ""qty"": ""4"", ""region"": ""West"", ""status"": ""completed"", ""unit_price"": ""45.00""}"
+13,,missing order ID,"{""order_date"": ""2026-09-05"", ""order_id"": """", ""product"": ""Mouse"", ""qty"": ""2"", ""region"": ""West"", ""status"": ""completed"", ""unit_price"": ""18.00""}"
+14,SO-1050,order ID group needs review; quantity must be a whole number,"{""order_date"": ""2026-09-05"", ""order_id"": ""SO-1050"", ""product"": ""Keyboard"", ""qty"": """", ""region"": ""South"", ""status"": ""completed"", ""unit_price"": ""45.00""}"
+15,SO-1051,order ID group needs review; unit price must be a number,"{""order_date"": ""2026-09-06"", ""order_id"": ""SO-1051"", ""product"": ""Desk Lamp"", ""qty"": ""2"", ""region"": ""North"", ""status"": ""completed"", ""unit_price"": ""$oops""}"
+16,SO-1052,"order ID group needs review; date is blank or not YYYY-MM-DD, YYYY/MM/DD, or MM/DD/YYYY","{""order_date"": ""2026-13-01"", ""order_id"": ""SO-1052"", ""product"": ""Mouse"", ""qty"": ""2"", ""region"": ""East"", ""status"": ""completed"", ""unit_price"": ""18.00""}"

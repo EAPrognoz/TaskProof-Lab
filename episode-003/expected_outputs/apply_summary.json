@@ -1,0 +1,13 @@
+{
+  "plan_rows": 7,
+  "ready_to_copy": 3,
+  "blocked_plan_collision": 2,
+  "blocked_source_collision": 0,
+  "blocked_unsafe_name": 1,
+  "blocked_source_missing": 1,
+  "blocked_target_exists": 0,
+  "copied": 3,
+  "copy_failed": 0,
+  "apply_requested": true,
+  "original_source_files_unchanged": true
+}

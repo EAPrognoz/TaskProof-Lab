@@ -1,0 +1,8 @@
+source_name,new_name
+scan_001.txt,2026-10-25_NORTH_INV-1042.txt
+scan_002.txt,2026-10-25_SOUTH_INV-1043.txt
+scan_003.txt,2026-10-25_NORTH_INV-1042.txt
+scan_004.txt,../unsafe.txt
+missing_scan_005.txt,2026-10-25_WEST_INV-1045.txt
+scan_005.txt,2026-10-25_EAST_INV-1046.txt
+scan_006.txt,2026-10-25_WEST_INV-1047.txt

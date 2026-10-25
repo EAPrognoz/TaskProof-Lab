@@ -1,0 +1,13 @@
+{
+  "input_file": "sales_export_synthetic.csv",
+  "synthetic_example": "true",
+  "currency_label": "USD (synthetic sample values)",
+  "input_data_rows": 15,
+  "approved_unique_orders": 7,
+  "review_rows": 6,
+  "cancelled_rows": 1,
+  "exact_duplicate_rows_removed": 1,
+  "reconciled_rows": 15,
+  "approved_sample_total": "946.00",
+  "row_check": "15 = 7 approved + 6 review + 1 cancelled + 1 duplicate"
+}

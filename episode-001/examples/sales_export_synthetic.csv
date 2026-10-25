@@ -1,0 +1,16 @@
+ Order ID ,Order Date,Region ,Product,Qty,Unit Price, Status
+SO-1041,2026-09-01,East,Monitor,2,125.00,completed
+so-1042,2026/09/01,west,Keyboard,3,45.00,completed
+SO-1043,2026-09-02,South,Mouse,6,18.00,paid
+SO-1044,2026-09-02,EAST,Webcam,2,55.00,complete
+SO-1045,2026-09-03,North,Headset,1,80.00,completed
+SO-1046,2026-09-03,West,Laptop Stand,4,32.00,complete
+SO-1047,2026-09-04,south,USB-C Hub,3,40.00,paid
+SO-1048,2026-09-04,North,Dock,1,150.00,complete
+SO-1042,2026-09-01,West,Keyboard,4,45.00,completed
+ so-1044 ,2026-09-02, east , Webcam , 2 , 55.00 , COMPLETED
+SO-1049,2026-09-05,East,Monitor,1,125.00,cancelled
+,2026-09-05,West,Mouse,2,18.00,completed
+SO-1050,2026-09-05,South,Keyboard,,45.00,completed
+SO-1051,2026-09-06,North,Desk Lamp,2,$oops,completed
+SO-1052,2026-13-01,East,Mouse,2,18.00,completed

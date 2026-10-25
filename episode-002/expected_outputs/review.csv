@@ -1,0 +1,5 @@
+side,source_row,raw_record_id,normalized_record_id,reason,raw_record_id,raw_invoice_date,raw_customer_code,raw_sku,raw_quantity,raw_unit_price,raw_status
+current,12,,,record_id is blank; the row cannot be matched safely,,2026-10-06,C-606,WEBCAM,1,39.00,posted
+previous,7,R-2406,R-2406,ambiguous record_id; duplicate key in current export,R-2406,2026-10-03,C-303,WEBCAM,1,41.00,posted
+current,7,R-2406,R-2406,duplicate record_id in current export,R-2406,2026-10-03,C-303,WEBCAM,1,41.00,posted
+current,8,R-2406,R-2406,duplicate record_id in current export,R-2406,2026-10-03,C-303,WEBCAM,2,41.00,posted

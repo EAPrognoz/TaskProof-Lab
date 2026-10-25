@@ -1,0 +1,3 @@
+record_id,previous_source_row,invoice_date,customer_code,sku,quantity,unit_price,status
+R-2407,8,2026-10-04,C-404,LAPTOP-STAND,1,37.00,posted
+R-2408,9,2026-10-04,C-404,HDMI-CABLE,3,12.00,posted

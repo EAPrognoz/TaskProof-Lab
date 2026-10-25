@@ -1,0 +1,8 @@
+order_id,order_date,region,product,qty,unit_price,order_total,status
+SO-1041,2026-09-01,East,Monitor,2,125.00,250.00,booked
+SO-1043,2026-09-02,South,Mouse,6,18.00,108.00,booked
+SO-1044,2026-09-02,East,Webcam,2,55.00,110.00,booked
+SO-1045,2026-09-03,North,Headset,1,80.00,80.00,booked
+SO-1046,2026-09-03,West,Laptop Stand,4,32.00,128.00,booked
+SO-1047,2026-09-04,South,USB-C Hub,3,40.00,120.00,booked
+SO-1048,2026-09-04,North,Dock,1,150.00,150.00,booked

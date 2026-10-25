@@ -1,0 +1,2 @@
+source_row,order_id,kept_source_row,reason
+11,SO-1044,5,identical after whitespace and case normalization
