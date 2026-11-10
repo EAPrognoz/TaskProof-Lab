@@ -1,0 +1,19 @@
+{
+  "accounted_rows": 14,
+  "clear_rows": 3,
+  "input_rows": 14,
+  "overlap_pairs": 3,
+  "overlap_rows": 6,
+  "overlap_rule": "Trimmed, case-insensitive employee ID match; half-open intervals [start, end); touching shifts do not overlap; end before start means next-day end.",
+  "review_issue_counts": {
+    "duplicate shift_id": 2,
+    "invalid start_time": 1,
+    "missing employee_id": 1,
+    "missing end_time": 1
+  },
+  "review_rows": 5,
+  "row_reconciliation": "14 = 3 clear + 6 overlap + 5 review",
+  "side_effects": "Writes local reports only; does not edit the input, change schedules, or calculate pay.",
+  "synthetic_example": true,
+  "valid_unique_rows": 9
+}

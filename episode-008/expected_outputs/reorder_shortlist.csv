@@ -1,0 +1,4 @@
+sku,item_name,on_hand,reorder_point,target_stock,pack_size,recommended_order_qty,projected_after_order
+SKU-101,Shipping cartons,4,5,18,7,14,18
+SKU-103,Label rolls,10,10,24,7,14,24
+SKU-104,Printer labels,0,0,12,6,12,12

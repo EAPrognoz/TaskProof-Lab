@@ -1,0 +1,7 @@
+sku,reorder_point,target_stock,pack_size
+SKU-101,5,18,7
+SKU-102,8,24,6
+SKU-103,10,24,7
+SKU-104,0,12,6
+SKU-105,6,18,6
+SKU-107,2,8,3

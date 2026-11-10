@@ -1,0 +1,4 @@
+shift_id_a,shift_id_b,employee_id,overlap_start,overlap_end,overlap_minutes
+S-103,S-111,E-014,2026-10-29T01:00,2026-10-29T04:00,180
+S-104,S-105,E-016,2026-10-27T11:30,2026-10-27T12:00,30
+S-106,S-107,E-017,2026-10-27T17:00,2026-10-27T18:00,60

@@ -1,0 +1,16 @@
+{
+  "synthetic_example": true,
+  "inventory_rows": 8,
+  "rule_rows": 6,
+  "reorder_suggestions": 3,
+  "above_threshold": 2,
+  "review_rows": 3,
+  "accounted_inventory_rows": 8,
+  "row_reconciliation": "8 = 3 reorder + 2 above threshold + 3 review",
+  "review_issue_counts": {
+    "duplicate inventory SKU": 2,
+    "no matching reorder rule": 1
+  },
+  "total_recommended_units": 40,
+  "side_effects": "No purchase orders are created and no inventory system is accessed."
+}

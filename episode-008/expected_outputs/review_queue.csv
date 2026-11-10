@@ -1,0 +1,4 @@
+source_row,sku,item_name,on_hand,issue
+7,SKU-106,Mailers,2,no matching reorder rule
+8,SKU-107,Cable ties,3,duplicate inventory SKU (2 rows); review all matches
+9,SKU-107,Cable ties,4,duplicate inventory SKU (2 rows); review all matches
