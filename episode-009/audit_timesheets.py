@@ -8,7 +8,10 @@ from __future__ import annotations
 
 import argparse
 import csv
+import io
 import json
+import os
+import sys
 from collections import Counter, defaultdict
 from datetime import date, datetime, time, timedelta
 from pathlib import Path
@@ -24,12 +27,124 @@ REVIEW_FIELDS = (*REQUIRED, "source_row", "issue")
 PAIR_FIELDS = ("shift_id_a", "shift_id_b", "employee_id", "overlap_start", "overlap_end", "overlap_minutes")
 
 
+def validate_quote_placement(text: str, filename: str) -> None:
+    """Reject quote characters outside CSV quoted fields before csv.reader parses."""
+    state = "field_start"
+    line = 1
+    quote_start = 1
+    index = 0
+    while index < len(text):
+        char = text[index]
+        if state == "quoted":
+            if char == '"':
+                if index + 1 < len(text) and text[index + 1] == '"':
+                    index += 2
+                    continue
+                state = "after_quote"
+            elif char == "\r":
+                line += 1
+                if index + 1 < len(text) and text[index + 1] == "\n":
+                    index += 1
+            elif char == "\n":
+                line += 1
+        elif state == "after_quote":
+            if char == ",":
+                state = "field_start"
+            elif char in "\r\n":
+                state = "field_start"
+                if char == "\r":
+                    line += 1
+                    if index + 1 < len(text) and text[index + 1] == "\n":
+                        index += 1
+                else:
+                    line += 1
+            else:
+                raise ValueError(
+                    f"{filename}: malformed CSV quote at physical line {line}: "
+                    "unexpected character after closing quote"
+                )
+        elif char == '"':
+            if state != "field_start":
+                raise ValueError(
+                    f"{filename}: malformed CSV quote at physical line {line}: "
+                    "quote inside an unquoted field"
+                )
+            state = "quoted"
+            quote_start = line
+        elif char == ",":
+            state = "field_start"
+        elif char in "\r\n":
+            state = "field_start"
+            if char == "\r":
+                line += 1
+                if index + 1 < len(text) and text[index + 1] == "\n":
+                    index += 1
+            else:
+                line += 1
+        else:
+            state = "unquoted"
+        index += 1
+
+    if state == "quoted":
+        raise ValueError(
+            f"{filename}: malformed CSV quote at physical line {quote_start}: "
+            "unclosed quoted field"
+        )
+
+
 def read_rows(path: Path) -> list[dict[str, str]]:
     with path.open(newline="", encoding="utf-8-sig") as handle:
-        reader = csv.DictReader(handle)
-        if reader.fieldnames is None or not set(REQUIRED).issubset(reader.fieldnames):
-            raise ValueError(f"{path.name} must contain columns: {', '.join(REQUIRED)}")
-        return [dict(row) for row in reader]
+        try:
+            text = handle.read()
+        except UnicodeError as exc:
+            raise ValueError(f"{path.name}: invalid UTF-8 input at byte offset {exc.start}") from None
+        validate_quote_placement(text, path.name)
+        reader = csv.reader(io.StringIO(text, newline=""), strict=True)
+        try:
+            headers = next(reader)
+        except StopIteration:
+            raise ValueError(f"{path.name}: missing CSV header") from None
+        except csv.Error as exc:
+            raise ValueError(f"{path.name}: malformed CSV header: {exc}") from None
+
+        duplicates = sorted({name for name in headers if headers.count(name) > 1})
+        if duplicates:
+            raise ValueError(f"{path.name}: duplicate header column(s): {', '.join(duplicates)}")
+        missing = [name for name in REQUIRED if name not in headers]
+        if missing:
+            raise ValueError(f"{path.name}: missing required column(s): {', '.join(missing)}")
+        unexpected = [name for name in headers if name not in REQUIRED]
+        if unexpected:
+            raise ValueError(f"{path.name}: unexpected column(s): {', '.join(unexpected)}")
+
+        rows: list[dict[str, str]] = []
+        data_record = 0
+        while True:
+            physical_start = reader.line_num + 1
+            try:
+                values = next(reader)
+            except StopIteration:
+                break
+            except csv.Error as exc:
+                raise ValueError(
+                    f"{path.name}: malformed CSV near physical line {reader.line_num}: {exc}"
+                ) from None
+            data_record += 1
+            csv_record = data_record + 1  # Record 1 is the header.
+            where = f"{path.name}: source record {csv_record} (physical line {physical_start})"
+            if not values:
+                raise ValueError(f"{where}: blank physical row; expected {len(REQUIRED)} fields")
+            if len(values) != len(headers):
+                if len(values) > len(headers):
+                    detail = "extra fields"
+                else:
+                    missing_names = ", ".join(headers[len(values):])
+                    detail = f"missing fields ({missing_names})"
+                raise ValueError(
+                    f"{where}: {detail}; expected {len(headers)} fields, got {len(values)}"
+                )
+            rows.append(dict(zip(headers, values)))
+        return rows
 
 
 def parse_date(value: str) -> date:
@@ -56,7 +171,65 @@ def write_csv(path: Path, fields: tuple[str, ...], rows: list[dict[str, Any]]) -
         writer.writerows(rows)
 
 
-def build(input_path: Path, output_dir: Path) -> dict[str, Any]:
+OUTPUT_NAMES = ("shift_audit.csv", "overlap_pairs.csv", "review_queue.csv", "summary.json")
+
+
+def _path_identity(path: Path) -> str:
+    try:
+        return os.path.normcase(str(path.resolve(strict=False)))
+    except (OSError, RuntimeError):
+        raise ValueError(f"cannot safely resolve path for collision check: {path.name}") from None
+
+
+def assert_no_input_output_collisions(inputs: tuple[Path, ...], output_dir: Path) -> None:
+    destinations = [(output_dir, "output directory")]
+    destinations.extend((output_dir / name, name) for name in OUTPUT_NAMES)
+    for source in inputs:
+        source_identity = _path_identity(source)
+        for destination, destination_name in destinations:
+            if source_identity == _path_identity(destination):
+                raise ValueError(
+                    f"input/output path collision: input '{source.name}' aliases "
+                    f"'{destination_name}'; choose a separate output directory"
+                )
+            try:
+                same_file = os.path.samefile(source, destination)
+            except (FileNotFoundError, NotADirectoryError):
+                same_file = False
+            except OSError:
+                raise ValueError(
+                    f"cannot safely compare input '{source.name}' with output '{destination_name}'"
+                ) from None
+            if same_file:
+                raise ValueError(
+                    f"input/output path collision: input '{source.name}' aliases "
+                    f"'{destination_name}'; choose a separate output directory"
+                )
+
+
+def _clear_previous_outputs(inputs: tuple[Path, ...], output_dir: Path) -> str | None:
+    failures: list[str] = []
+    for name in OUTPUT_NAMES:
+        try:
+            assert_no_input_output_collisions(inputs, output_dir)
+        except ValueError as exc:
+            return f"report cleanup stopped to protect an input: {exc}"
+        path = output_dir / name
+        try:
+            if path.is_dir() and not path.is_symlink():
+                failures.append(f"{name} is a directory and was preserved")
+                continue
+            path.unlink()
+        except FileNotFoundError:
+            pass
+        except OSError as exc:
+            failures.append(f"{name} could not be removed ({exc.strerror or 'filesystem error'})")
+    if failures:
+        return "cleanup incomplete: " + "; ".join(failures) + ". Inspect existing outputs before use."
+    return None
+
+
+def _build(input_path: Path, output_dir: Path) -> dict[str, Any]:
     rows = read_rows(input_path)
     id_groups: dict[str, list[int]] = defaultdict(list)
     for idx, row in enumerate(rows):
@@ -67,7 +240,7 @@ def build(input_path: Path, output_dir: Path) -> dict[str, Any]:
     review: list[dict[str, Any]] = []
     valid: list[dict[str, Any]] = []
     for idx, row in enumerate(rows):
-        source_row = idx + 2  # Header occupies CSV line 1.
+        source_row = idx + 2  # Preserve the legacy header-inclusive logical CSV record index.
         shift_id = row.get("shift_id", "").strip()
         employee_id = row.get("employee_id", "").strip()
         issue = ""
@@ -106,7 +279,10 @@ def build(input_path: Path, output_dir: Path) -> dict[str, Any]:
                     start = datetime.combine(work_date, start_time)
                     end = datetime.combine(work_date, end_time)
                     if end_time < start_time:
-                        end += timedelta(days=1)
+                        try:
+                            end += timedelta(days=1)
+                        except OverflowError:
+                            issue = "overnight end date exceeds supported date range"
                     elif end_time == start_time:
                         issue = "start and end are equal; duration is ambiguous"
         if issue:
@@ -180,12 +356,31 @@ def build(input_path: Path, output_dir: Path) -> dict[str, Any]:
         "overlap_rule": "Trimmed, case-insensitive employee ID match; half-open intervals [start, end); touching shifts do not overlap; end before start means next-day end.",
         "side_effects": "Writes local reports only; does not edit the input, change schedules, or calculate pay.",
     }
+    assert_no_input_output_collisions((input_path,), output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    assert_no_input_output_collisions((input_path,), output_dir)
     write_csv(output_dir / "shift_audit.csv", AUDIT_FIELDS, audit)
+    assert_no_input_output_collisions((input_path,), output_dir)
     write_csv(output_dir / "overlap_pairs.csv", PAIR_FIELDS, pair_rows)
+    assert_no_input_output_collisions((input_path,), output_dir)
     write_csv(output_dir / "review_queue.csv", REVIEW_FIELDS, review)
+    assert_no_input_output_collisions((input_path,), output_dir)
     (output_dir / "summary.json").write_text(json.dumps(summary, indent=2, sort_keys=True) + "\n", encoding="utf-8")
     return summary
+
+
+def build(input_path: Path, output_dir: Path) -> dict[str, Any]:
+    input_paths = (input_path,)
+    # Check before reading, and again before every output mutation.
+    assert_no_input_output_collisions(input_paths, output_dir)
+    try:
+        return _build(input_path, output_dir)
+    except (ValueError, OSError, csv.Error, UnicodeError) as original_error:
+        # Old reports must not appear to describe a run that just failed.
+        cleanup_status = _clear_previous_outputs(input_paths, output_dir)
+        if cleanup_status:
+            raise ValueError(f"{original_error}; {cleanup_status}") from None
+        raise
 
 
 def main() -> None:
@@ -193,7 +388,12 @@ def main() -> None:
     parser.add_argument("--input", type=Path, default=ROOT / "examples" / "timesheets.csv")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "output")
     args = parser.parse_args()
-    print(json.dumps(build(args.input, args.output_dir), indent=2))
+    try:
+        summary = build(args.input, args.output_dir)
+    except (ValueError, OSError, csv.Error, UnicodeError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        raise SystemExit(2) from None
+    print(json.dumps(summary, indent=2))
 
 
 if __name__ == "__main__":

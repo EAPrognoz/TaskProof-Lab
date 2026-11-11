@@ -27,7 +27,7 @@ This package was tested on Linux with Python 3.12.14. It uses only the Python st
    python3 -m unittest discover -s tests -v
    ```
 
-   The suite should report 13 passing tests. These original tests cover selected sample and boundary behavior; they do not compare every output file with the expected snapshots.
+   The suite should report 28 passing tests: 13 original behavior tests and 15 command-line regression tests. The original tests cover selected sample and boundary behavior; they do not compare every output file with the expected snapshots.
 4. Run the sample into a fresh `output/` folder:
 
    ```sh
@@ -53,6 +53,12 @@ This package was tested on Linux with Python 3.12.14. It uses only the Python st
    cat output/review_queue.csv
    cat output/summary.json
    ```
+
+## CSV structure and failed runs
+
+The script requires the five documented headers exactly once; unknown columns, duplicate headers, blank physical rows, malformed CSV quoting, and rows with too few or too many cells produce a concise error and exit status 2. Input paths are checked against the output directory and every report path before reading, writing, and cleanup; the check covers normalized relative/absolute paths, symlinks, and existing hard links. If an input aliases an output, the run stops without changing it. If a previous run left the four report filenames in the selected output folder, a failed run removes those files so old results cannot look current. If a report path is instead a directory or cannot be removed, cleanup continues for other reports and reports the incomplete cleanup; inspect the output folder before using any remaining files. Make a fresh output folder when investigating an error. A full-width blank field remains a row-level review issue, while a physically missing field is a file-level error. Correct quoted commas and doubled quotes are accepted; stray quotes in unquoted fields and invalid text encoding are rejected. Valid quoted multi-line fields are accepted. If an overnight end date would exceed Python's supported calendar range, that row is placed in review instead of causing a traceback. CSV diagnostics identify the source file; depending on the error, they also include the logical record, physical line, or invalid byte offset. For compatibility, the output `source_row` field retains the existing header-inclusive logical record index (the first data record is 2); it is not a physical line number.
+
+This is a focused shape check, not a general-purpose CSV repair tool. It accepts the documented UTF-8 CSV format and documented columns; adapt exports deliberately rather than adding columns and assuming they are ignored.
 
 ## Expected synthetic result and limits
 
